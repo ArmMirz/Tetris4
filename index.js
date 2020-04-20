@@ -1,10 +1,11 @@
 const canvas = document.getElementById('root');
 const context = canvas.getContext('2d');
 
+
 context.scale(20, 20);
-let level = 0;
+
 function arenaSweep() {
-	let rowCount = 1;
+
 	outer: for (let y = arena.length -1; y > 0; --y) {
 		for (let x = 0; x < arena[y].length; ++x) {
 			if (arena[y][x] === 0) {
@@ -12,23 +13,31 @@ function arenaSweep() {
 			}
 		}
 
-		const row = arena.splice(y, 1)[0].fill(0);
+		let row = arena.splice(y, 1)[0].fill(0);
 		arena.unshift(row);
 		++y;
 
-		player.score += rowCount * 10;
-		rowCount *= 2;
-		if(player.score == 30){
-			level ++;
-		} else if (player.score == 50){
-			level ++;
+		player.score += 10;
+		let check = true;
+		if(player.score > !0 && player.score < 30 && check){
+			player.level ++;
+			check = false;
+		} else if (player.score > 40 && player.score < 70 && check){
+			player.level ++;
+			check = false;
 		}
-		else if (player.score == 70){
-			level ++;
+		else if (player.score > 80 && player.score < 100 && check){
+			player.level ++;
+			check = false;
 		}
-		else if (player.score == 90){
-			level ++;
+		else if (player.score > 110 && player.score < 300 && check){
+			player.level ++;
+			check = false;
+		} else if (player.score > 310 && player.score < 1000){
+			player.level ++;
 		}
+
+
 	}
 }
 
@@ -203,51 +212,49 @@ function playerRotate(dir) {
 
 let isGameOver = false;
 let isPlaying = true;
-let intervalId = null; // Aram
+let intervalId;
 
 function gameOver(){
 	stopUpdate();
 	isGameOver = true;
-	let game = "Game Over";
-	alert(`You are lose, Your score are ${player.score}, please press enter for start`);
+	player.level = 1;
+	alert(`You are lose, Your score are ${player.score}, for start please press enter `);
 }
 
 function reset(){
-			level = 0;
-			isGameOver = false;
-			pause()
-			// topOut = false;
-			// playfield = this.createPlayfield();
-			// activePiece = this.createPlayfield();
-			// nextPiece = this.createPiece();
+	player.level = 1;
+	isGameOver = false;
+	pause()
+
 }
 
 function play(){
-		isPlaying = true;
-		update();
-		//this.view.renderMainScreen(this.game.getState());
+	isPlaying = true;
+	update();
+
 }
 function pause(){
-		isPlaying = false;
-		stopUpdate();
-		//this.view.renderMainScreen(this.game.getState());
+	isPlaying = false;
+	stopUpdate();
+
 }
 
  function update(){
-			let speed = 800 - level * 100;
-console.log(speed);
-		if(!intervalId) {
-				intervalId = setInterval(() => {
-				playerDrop();
-				draw();
-				requestAnimationFrame(update);
-			}, speed > 0 ? speed : 100);
-		}
+		let speed = 800 - player.level * 55;
+
+			intervalId = setTimeout(() => {
+			playerDrop();
+			draw();
+			requestAnimationFrame(update);
+		}, speed > 0 ? speed : 10);
+
 	}
 	function stopUpdate(){
 		if(intervalId){
 			clearInterval(intervalId);
-			intervalId = null;
+			if (isGameOver) {
+				intervalId = null;
+			}
 			isPlaying = false;
 		}
 	}
@@ -256,7 +263,8 @@ console.log(speed);
 
 
 function updateScore() {
-	document.getElementById('score').innerText = player.score;
+	document.getElementById('score').innerText = "score: "+ player.score ;
+	document.getElementById('level').innerText = "level: "+ player.level ;
 }
 
 document.addEventListener('keydown', event => {
@@ -295,9 +303,11 @@ let arena = createMatrix(12, 20);
 let player = {
 	pos: {x: 0, y: 0},
 	matrix: null,
-	score: 0
+	score: 0,
+	level: 1
 };
 
 playerReset();
 updateScore();
 update();
+
